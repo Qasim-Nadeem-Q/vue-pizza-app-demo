@@ -34,13 +34,13 @@ export default {
 		return {
 			nav_items: [
 				{ id: 1, title: "Home", icon: "home", class: "nav-item active", link_to: "/" },
-				{ id: 2, title: "Food Category", icon: "filter_frames", class: "nav-item", link_to: "" },
+				{ id: 2, title: "Food Category", icon: "filter_frames", class: "nav-item", link_to: "/food-category" },
 				{ id: 3, title: "New Order", icon: "bubble_chart", class: "nav-item", link_to: "" },
-				{ id: 4, title: "Product", icon: "production_quantity_limits", class: "nav-item", link_to: "" },
-				{ id: 5, title: "Customer List", icon: "perm_identity", class: "nav-item", link_to: "" },
+				{ id: 4, title: "Product", icon: "production_quantity_limits", class: "nav-item", link_to: "/products-index" },
+				{ id: 5, title: "Customer List", icon: "perm_identity", class: "nav-item", link_to: "/customerList" },
 				{ id: 6, title: "Pizza Topping", icon: "receipt", class: "nav-item", link_to: "/pizza-topping" },
 			],
-			active_nav_id: this.$store.state.active_nav_item,
+			active_nav_id: this.$store.state.actcategoryive_nav_item,
 		}
 	},
 
