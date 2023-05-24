@@ -44,16 +44,16 @@
 											</tr>
 										</thead>
 										<tbody>
-											<tr>
-												<td class="text-center">1</td>
-												<td>Andrew Mike</td>
+											<tr v-for="(topping, index) in toppingsList" :key="topping.id">
+												<td class="text-center">{{ index + 1 }}</td>
+												<td>{{ topping.name }}</td>
 												<td>2013</td>
 												<td class="td-actions text-right">
-													<button type="button" rel="tooltip" class="btn btn-success" @click="showForm('edit')">
+													<button type="button" rel="tooltip" class="btn btn-success" @click="showForm('edit', topping)">
 														<i class="material-icons">edit</i>
 													</button>
 													&nbsp;
-													<button type="button" rel="tooltip" class="btn btn-danger">
+													<button type="button" rel="tooltip" class="btn btn-danger" @click="deleteTopping(topping)">
 														<i class="material-icons">close</i>
 													</button>
 												</td>
@@ -68,37 +68,39 @@
 
 				<div v-if="formVisible" id="addnewproduct" role="dialog">
 					<div class="modal-dialog  " role="document">
-						<div class="modal-content" style="width: 500px;">
-							<div class="modal-header">
-								<h3 class="modal-title card-header card-header-primary" id="addnewproduct">
-									{{ formTitle }}
-								</h3>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="col-lg-8 col-md-6 col-sm-6" style="width: 450px;">
-								<div class="modal-body">
-									<div class="row">
-										<div class="col-lg-6 col-md-6 col-sm-6">
-											<form>
+						<form @submit.prevent="toppingAction()">
+							<div class="modal-content" style="width: 500px;">
+								<div class="modal-header">
+									<h3 class="modal-title card-header card-header-primary" id="addnewproduct">
+										{{ formTitle }}
+									</h3>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="col-lg-8 col-md-6 col-sm-6" style="width: 450px;">
+									<div class="modal-body">
+										<div class="row">
+											<div class="col-lg-6 col-md-6 col-sm-6">
+												<!-- <form> -->
 												<div class="form-group">
 													<label style="font-size:15px; width: 260px; color: black;font-style:bold;" for="Name">Enter
 														Category Name </label>
-													<input style="width: 260px;color:black;  font-size:15px " id="productname"
-														aria-describedby="emailHelp" placeholder=" ">
+													<input type="text" style="width: 260px;color:black;  font-size:15px " id="productname"
+														aria-describedby="emailHelp" placeholder=" " v-model="productName" required>
 												</div>
-											</form>
+												<!-- </form> -->
+											</div>
 										</div>
 									</div>
 								</div>
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-primary">Submit</button>
+									<button type="button" class="btn btn-danger" data-dismiss="modal"
+										@click="formVisible = false">Close</button>
+								</div>
 							</div>
-							<div class="modal-footer">
-								<button type="submit" class="btn btn-primary">Submit</button>
-								<button type="button" class="btn btn-danger" data-dismiss="modal"
-									@click="formVisible = false">Close</button>
-							</div>
-						</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -107,6 +109,8 @@
 </template>
 
 <script>
+const axios = require("axios");
+
 export default {
 	name: "pizza-topping",
 
@@ -115,20 +119,63 @@ export default {
 			formTitle: "",
 			actionType: "",
 			formVisible: false,
+			productName: "",
+			toppingsList: [],
+			toppingToBeUpdated: [],
 		}
 	},
 
+	beforeMount() {
+		this.getToppings();
+	},
+
 	methods: {
-		showForm(formType) {
+		showForm(formType, topping = undefined) {
 			this.formVisible = true;
 			if (formType == "add") {
 				this.formTitle = "Add Pizza Toppings";
 				this.actionType = formType;
+				this.productName = "";
 			} else {
 				this.formTitle = "Update Pizza Toppings";
 				this.actionType = formType;
+				this.productName = topping.name;
+				this.toppingToBeUpdated = topping;
 			}
-		}
+		},
+
+		getToppings() {
+			axios.get(process.env.VUE_APP_BACKEND_ADDRESS + "getAllToppings").then(toppings => {
+				this.toppingsList = toppings.data;
+				console.log(this.toppingsList);
+			})
+		},
+
+		toppingAction() {
+			this.actionType == "add" ? this.addTopping() : this.updateTopping()
+		},
+
+		addTopping() {
+			axios.post(process.env.VUE_APP_BACKEND_ADDRESS + "addTopping", { name: this.productName }).then(() => {
+				alert("Topping created successfully!");
+			});
+
+		},
+
+		updateTopping() {
+			axios.put(process.env.VUE_APP_BACKEND_ADDRESS + "updateTopping/" + this.toppingToBeUpdated.id,
+				{ name: this.productName }).then(() => {
+					alert("Topping updated successfully!");
+					this.getToppings();
+				});
+		},
+
+		deleteTopping(toppingToBeDeleted) {
+			axios.delete(process.env.VUE_APP_BACKEND_ADDRESS + "deleteTopping/" + toppingToBeDeleted.id).then(() => {
+					alert("Topping deleted successfully!");
+					this.getToppings();
+				});
+		},
 	}
 }
 </script>
